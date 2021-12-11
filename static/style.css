@@ -1,0 +1,11 @@
+html {
+    background-color: antiquewhite;
+}
+
+body {
+    margin:0;
+    overflow: hidden;
+}
+canvas { 
+    display: block; 
+}

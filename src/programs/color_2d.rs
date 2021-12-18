@@ -4,7 +4,7 @@ use web_sys::*;
 use js_sys::WebAssembly;
 
 use super::super::common_funcs as cf;
-
+use super::super::app_state;
 
 pub struct Color2D {
     program: WebGlProgram,
@@ -62,14 +62,14 @@ impl Color2D {
     pub fn render(
         &self,
         gl: &WebGlRenderingContext,
-        bottom:f32,
-        top:f32,
-        left:f32,
-        right:f32,
-        canvas_height:f32,
-        canvas_width:f32,
+        x:f32,
+        y:f32,
+        width:f32,
+        height:f32,
         (r,g,b,a):(f32,f32,f32,f32),
     ) {
+        let curr_state = app_state::get_curr_state();
+
         gl.use_program(Some(&self.program));
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.rect_vertice_buffer));
         gl.vertex_attrib_pointer_with_i32(
@@ -92,14 +92,16 @@ impl Color2D {
         gl.uniform1f(Some(&self.u_opacity), 1.);
 
         let translation_mat = cf::translation_matrix(
-            2. *left/canvas_width -1.,
-            2. *bottom/canvas_height -1.,
-            0.);
-        
+            2. * x / curr_state.canvas_width - 1.,
+            2. * y / curr_state.canvas_height - 1.,
+            0.,
+        );
+
         let scale_mat = cf::scaling_matrix(
-            2. *(right-left) / canvas_width, 
-            2. *(top-bottom) / canvas_height,
-            0.);
+            2. * width / curr_state.canvas_width,
+            2. * height / curr_state.canvas_height,
+            0.,
+        );
 
         let transform_mat = cf::mult_matrix_4(scale_mat, translation_mat);
 

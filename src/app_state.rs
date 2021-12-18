@@ -36,6 +36,8 @@ pub struct AppState {
     pub control_left:f32,
     pub control_right:f32,
     pub time: f32,
+    pub mouse_x:f32,
+    pub mouse_y: f32,
 }
 
 impl AppState {
@@ -48,6 +50,28 @@ impl AppState {
             control_left:0.,
             control_right:0.,      
             time:0.,
+            mouse_x:-1.,
+            mouse_y:-1.,
         }
     }
+}
+
+pub fn update_mouse_down(x: f32, y: f32, is_down: bool) {
+    let mut data = APP_STATE.lock().unwrap();
+    *data = Arc::new(AppState {
+        mouse_x: x,
+        mouse_y: data.canvas_height - y,
+        ..*data.clone()
+    });
+}
+
+pub fn update_mouse_position(x: f32, y: f32) {
+    let mut data = APP_STATE.lock().unwrap();
+    let inverted_y = data.canvas_height - y;
+
+    *data = Arc::new(AppState {
+        mouse_x: x,
+        mouse_y: inverted_y,
+        ..*data.clone()
+    });
 }

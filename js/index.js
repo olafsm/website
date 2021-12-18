@@ -3,14 +3,14 @@ import("../pkg/index.js").catch(console.error);
 const { Client } = require("../pkg/index.js");
 
 
-let canvas = document.getElementById("rustCanvas");
+let canvas = document.getElementById("backgroundCanvas");
 const gl = canvas.getContext('webgl', {antialias: true});
 
 if (!gl) {
     alert('Failed to initialize WebGL');
 }
 
-const FPS_MAX = 1000.0 / 30.0; // ms/frame
+const FPS_MAX = 1000.0 / 30; // ms/frame
 const client = new Client;
 const initialTime = Date.now()
 
@@ -37,7 +37,7 @@ function render() {
         // rust update
         client.update(elapsedTime, window.innerHeight, window.innerWidth);
         // rust render
-        client.render();
+        client.render("squares");
     }
 }
 render();

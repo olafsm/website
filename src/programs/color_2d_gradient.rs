@@ -2,6 +2,8 @@ use wasm_bindgen::JsCast;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::*;
 use js_sys::WebAssembly;
+use crate::app_state;
+
 use super::super::common_funcs as cf;
 
 #[allow(dead_code)]
@@ -77,14 +79,14 @@ impl Color2DGradient {
     pub fn render(
         &self,
         gl: &WebGlRenderingContext,
-        bottom: f32,
-        top: f32,
-        left: f32,
-        right: f32,
-        canvas_height: f32,
-        canvas_width: f32,
+        x:f32,
+        y:f32,
+        width:f32,
+        height:f32,
         gradient: Option<[f32;16]>
     ) {
+        let curr_state = app_state::get_curr_state();
+
         gl.use_program(Some(&self.program));
 
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.rect_vertice_buffer));
@@ -101,7 +103,7 @@ impl Color2DGradient {
             1., 1., 1., 1.,
             0., 0., 1., 1.,
         ]);
-
+        
         let colors_memory_buffer = wasm_bindgen::memory()
             .dyn_into::<WebAssembly::Memory>()
             .unwrap()
@@ -110,18 +112,19 @@ impl Color2DGradient {
         let color_vals_array = js_sys::Float32Array::new(&colors_memory_buffer)
             .subarray(color_vals_location, color_vals_location + colors.len() as u32);
         gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &color_vals_array, GL::DYNAMIC_DRAW);
+          
 
         gl.uniform1f(Some(&self.u_opacity), 1.);
 
         let translation_mat = cf::translation_matrix(
-            2. * left / canvas_width - 1.,
-            2. * bottom / canvas_height - 1.,
+            2. * x / curr_state.canvas_width - 1.,
+            2. * y / curr_state.canvas_height - 1.,
             0.,
         );
 
         let scale_mat = cf::scaling_matrix(
-            2. * (right - left) / canvas_width,
-            2. * (top - bottom) / canvas_height,
+            2. * width / curr_state.canvas_width,
+            2. * height / curr_state.canvas_height,
             0.,
         );
 
